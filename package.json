@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"shopify theme dev -e development\" \"npx @tailwindcss/cli -i ./assets/tailwind.input.css -o ./assets/tailwind.output.css --watch\""
+    "prettier": "prettier",
+    "dev": "concurrently \"shopify theme dev -e development\" \"npx @tailwindcss/cli -i ./assets/tailwind.input.css -o ./assets/tailwind.output.css --watch\"",
+    "dev-theme:push": "shopify theme push -e development",
+    "dev-theme:pull": "shopify theme pull -e development"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +18,7 @@
     "@tailwindcss/cli": "^4.1.4",
     "concurrently": "^9.1.2",
     "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.1.4"
   }
 }
