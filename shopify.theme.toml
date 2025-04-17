@@ -1,0 +1,3 @@
+[environments.development]
+theme = "178723062069"
+store = "test-liquid-product-card"
