@@ -4,7 +4,7 @@ This project is a technical assessment that implements a Shopify product card co
 
 ## Live Preview
 
-[Development Store](https://)
+https://test-liquid-product-card.myshopify.com/collections/all
 
 ## Tech Stack
 
@@ -12,7 +12,7 @@ This project is a technical assessment that implements a Shopify product card co
 - TailwindCSS (v4.1.4)
 - Liquid Templates
 - JavaScript
-- Prettier (with Shopify Liquid plugin)
+- Prettier (with Shopify Liquid and Tailwind plugin)
 
 ## Installation
 
