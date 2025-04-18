@@ -5,16 +5,9 @@
 {%- if compare_at_price > price -%}
   {%- assign is_on_sale = true -%}
 {%- endif -%}
-{%- assign featured_media = first_variant.image -%}
+{%- assign featured_image = first_variant.featured_image -%}
 
 <style>
-  product-card .card-swatch {
-    position: relative;
-    height: 2rem;
-    width: 2rem;
-    border-radius: 50%;
-  }
-
   product-card .card-swatch::before {
     content: '';
     position: absolute;
@@ -35,18 +28,39 @@
 
 <product-card
   class="flex flex-col"
-  data-product-handle="{{ card_product.handle }}"
 >
+  <script type="application/json" id="CardProductJSON-{{ card_product.id }}">
+    {
+      "card_product": {{ card_product | json }},
+      "metafields": {
+        "variant_gallery": {
+          {% for variant in card_product.variants %}
+            "{{ variant.id }}": {
+              "value": [
+                {% if variant.metafields.custom.variant_gallery.value != blank %}
+                  {% assign first_image = variant.metafields.custom.variant_gallery.value | first %}
+                  {
+                    "src": {{ first_image.src | json }}
+                  }
+                {% endif %}
+              ]
+            }{% unless forloop.last %},{% endunless %}
+          {% endfor %}
+        }
+      }
+    }
+  </script>
+
   <div class="group mb-[1.5rem] overflow-hidden rounded-[1rem] border border-gray-200 p-[2rem]">
-    {%- if featured_media -%}
+    {%- if featured_image -%}
       <a href="{{ card_product.url }}" class="block">
-        <div class="relative">
+        <div class="relative aspect-[0.90]">
           <img
-            src="{{ featured_media | image_url: width: 533 }}"
+            src="{{ featured_image | image_url: width: 533 }}"
             alt="{{ card_product.title | escape }}"
-            width="{{ featured_media.width }}"
-            height="{{ featured_media.height }}"
-            class="h-full w-full object-cover transition-opacity duration-300"
+            width="{{ featured_image.width }}"
+            height="{{ featured_image.height }}"
+            class="absolute inset-0 h-full w-full object-cover"
             loading="lazy"
             data-primary-image
           >
@@ -57,7 +71,7 @@
               alt="{{ first_variant.title | escape }}"
               width="{{ secondary_image.width }}"
               height="{{ secondary_image.height }}"
-              class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              class="[&:not([style*='display: none'])]:transition-opacity absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
               loading="lazy"
               data-secondary-image
             >
@@ -67,7 +81,10 @@
     {%- endif -%}
 
     {%- if is_on_sale -%}
-      <div class="absolute top-[1.6rem] left-[1.6rem] rounded-full border-[0.2rem] border-red-500 bg-white px-[1.3rem] py-[1.4rem] text-[1.4rem] leading-0 font-medium text-red-500">
+      <div
+        class="absolute top-[1.6rem] left-[1.6rem] rounded-full border-[0.2rem] border-red-500 bg-white px-[1.3rem] py-[1.4rem] text-[1.4rem] leading-0 font-medium text-red-500"
+        data-sale-badge
+      >
         <span>{{ 'products.product.on_sale' | t }}</span>
       </div>
     {%- endif -%}
@@ -86,8 +103,9 @@
 
             <span
               class="
-                card-swatch  relative h-[2rem]
+                card-swatch relative h-[2rem]
                 w-[2rem]
+                cursor-pointer
                 rounded-full
                 {% if forloop.first %}card-swatch--selected{% endif %}
               "
@@ -112,11 +130,13 @@
     </a>
     <div class="flex items-center gap-[0.8rem]">
       {%- if is_on_sale -%}
-        <span class="text-[1.4rem] leading-[1.6rem] text-gray-900 line-through">
+        <span class="text-[1.4rem] leading-[1.6rem] text-gray-900 line-through" data-compare-at-price>
           {{- compare_at_price | money -}}
         </span>
+        <span class="text-[1.4rem] leading-[1.6rem] text-red-500" data-price>{{ price | money }}</span>
+      {%- else -%}
+        <span class="text-[1.4rem] leading-[1.6rem] text-gray-900" data-price>{{ price | money }}</span>
       {%- endif -%}
-      <span class="text-[1.4rem] leading-[1.6rem] text-red-500">{{ price | money }}</span>
     </div>
   </div>
 </product-card>
