@@ -1,0 +1,122 @@
+{%- assign first_variant = card_product.first_available_variant -%}
+{%- assign compare_at_price = first_variant.compare_at_price -%}
+{%- assign price = first_variant.price -%}
+{%- assign is_on_sale = false -%}
+{%- if compare_at_price > price -%}
+  {%- assign is_on_sale = true -%}
+{%- endif -%}
+{%- assign featured_media = first_variant.image -%}
+
+<style>
+  product-card .card-swatch {
+    position: relative;
+    height: 2rem;
+    width: 2rem;
+    border-radius: 50%;
+  }
+
+  product-card .card-swatch::before {
+    content: '';
+    position: absolute;
+    top: -0.2rem;
+    left: -0.2rem;
+    display: block;
+    height: 2.4rem;
+    width: 2.4rem;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  product-card .card-swatch.card-swatch--selected::before {
+    border-color: #0a4874;
+  }
+</style>
+
+<product-card
+  class="flex flex-col"
+  data-product-handle="{{ card_product.handle }}"
+>
+  <div class="group mb-[1.5rem] overflow-hidden rounded-[1rem] border border-gray-200 p-[2rem]">
+    {%- if featured_media -%}
+      <a href="{{ card_product.url }}" class="block">
+        <div class="relative">
+          <img
+            src="{{ featured_media | image_url: width: 533 }}"
+            alt="{{ card_product.title | escape }}"
+            width="{{ featured_media.width }}"
+            height="{{ featured_media.height }}"
+            class="h-full w-full object-cover transition-opacity duration-300"
+            loading="lazy"
+            data-primary-image
+          >
+          {%- assign secondary_image = first_variant.metafields.custom.variant_gallery.value | first -%}
+          {%- if secondary_image != blank -%}
+            <img
+              src="{{ secondary_image | image_url: width: 533 }}"
+              alt="{{ first_variant.title | escape }}"
+              width="{{ secondary_image.width }}"
+              height="{{ secondary_image.height }}"
+              class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              loading="lazy"
+              data-secondary-image
+            >
+          {%- endif -%}
+        </div>
+      </a>
+    {%- endif -%}
+
+    {%- if is_on_sale -%}
+      <div class="absolute top-[1.6rem] left-[1.6rem] rounded-full border-[0.2rem] border-red-500 bg-white px-[1.3rem] py-[1.4rem] text-[1.4rem] leading-0 font-medium text-red-500">
+        <span>{{ 'products.product.on_sale' | t }}</span>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {% for option in card_product.options_with_values %}
+    {% case option.name %}
+      {% when 'Color' %}
+        <div class="mb-[1.5rem] flex items-center gap-x-[0.8rem]">
+          {% for value in option.values %}
+            {% liquid
+              assign swatch = value.swatch
+              assign swatch_value = 'rgb(' | append: swatch.color.rgb | append: ')'
+              assign variant = card_product.variants | where: 'option1', value | first
+            %}
+
+            <span
+              class="
+                card-swatch  relative h-[2rem]
+                w-[2rem]
+                rounded-full
+                {% if forloop.first %}card-swatch--selected{% endif %}
+              "
+              style="background-color: {{ swatch_value }};"
+              title="{{ value }}"
+              data-swatch
+              data-variant-id="{{ variant.id }}"
+            >
+              <span class="sr-only">{{ value }}</span>
+            </span>
+          {% endfor %}
+        </div>
+    {% endcase %}
+  {% endfor %}
+
+  <div class="flex-grow">
+    <p class="mb-[0.6rem] text-[1.4rem] leading-[1.6rem] text-gray-900">Good Brand Company</p>
+    <a href="{{card_product.url}}" class="cursor-pointer">
+      <p class="mb-[0.6rem] text-[1.6rem] leading-[1.8rem] font-medium text-[#0A4874]">
+        {{ card_product.title }}
+      </p>
+    </a>
+    <div class="flex items-center gap-[0.8rem]">
+      {%- if is_on_sale -%}
+        <span class="text-[1.4rem] leading-[1.6rem] text-gray-900 line-through">
+          {{- compare_at_price | money -}}
+        </span>
+      {%- endif -%}
+      <span class="text-[1.4rem] leading-[1.6rem] text-red-500">{{ price | money }}</span>
+    </div>
+  </div>
+</product-card>
